@@ -301,10 +301,10 @@ static int lcm_unprepare(struct drm_panel *panel)
 	g_notify_data.data = &event;
 	z_notify_data.data = &blank;
 	//START tp fb suspend
-	//pr_info("-----FTS----primary_display_suspend_early");
+	//pr_debug("-----FTS----primary_display_suspend_early");
 	fb_drm_notifier_call_chain(FB_DRM_EVENT_BLANK, &g_notify_data);
 
-	pr_info("%s+\n", __func__);
+	pr_debug("%s+\n", __func__);
 	lcm_dcs_write_seq_static(ctx, 0x28);
 	msleep(10);
 	lcm_dcs_write_seq_static(ctx, 0x10);
@@ -317,10 +317,10 @@ static int lcm_unprepare(struct drm_panel *panel)
 
 	ctx->error = 0;
 	ctx->prepared = false;
-  	//pr_info("-----FTS----primary_display_suspend");
+  	//pr_debug("-----FTS----primary_display_suspend");
 	fb_drm_notifier_call_chain(FB_DRM_EARLY_EVENT_BLANK, &g_notify_data);
 	drm_notifier_call_chain(DRM_EVENT_BLANK, &z_notify_data);
-	pr_info("%s-\n", __func__);
+	pr_debug("%s-\n", __func__);
 	//pr_err("[XMFP]:%s++++ BLANK = DRM_BLANK_POWERDOWN ++++ \n", __func__);
 
 	return 0;
@@ -342,7 +342,7 @@ static int lcm_prepare(struct drm_panel *panel)
 		int ret;
 		int blank;
 	
-		pr_info("%s+\n", __func__);
+		pr_debug("%s+\n", __func__);
 		if (ctx->prepared)
 			return 0;
 		struct fb_drm_notify_data g_notify_data;
@@ -351,7 +351,7 @@ static int lcm_prepare(struct drm_panel *panel)
 		g_notify_data.data = &event;
 		z_notify_data.data = &blank;
 		//START tp fb suspend
-		//pr_info("-----FTS----primary_display_resume_early");
+		//pr_debug("-----FTS----primary_display_resume_early");
 		fb_drm_notifier_call_chain(FB_DRM_EARLY_EVENT_BLANK, &g_notify_data);
 		//printk("---FTS---mt6781");
 		//gpiod_set_value(ctx->vddi_enable, 1);
@@ -364,14 +364,14 @@ static int lcm_prepare(struct drm_panel *panel)
 			lcm_unprepare(panel);
 	
 		ctx->prepared = true;
- 		//pr_info("-----FTS----primary_display_resume");
+ 		//pr_debug("-----FTS----primary_display_resume");
 		fb_drm_notifier_call_chain(FB_DRM_EVENT_BLANK, &g_notify_data);
 		drm_notifier_call_chain(DRM_EVENT_BLANK, &z_notify_data);
 	
 #ifdef PANEL_SUPPORT_READBACK
 		lcm_panel_get_data(ctx);
 #endif
-		pr_info("%s-\n", __func__);
+		pr_debug("%s-\n", __func__);
 		//pr_err("[XMFP]:%s++++ BLANK = DRM_BLANK_POWERDOWN ++++ \n", __func__);
 	
 		return ret;
@@ -583,7 +583,7 @@ static int panel_hbm_control(struct drm_panel *panel, bool en)
 	cmd_msg->tx_buf[1] = bl_tb;
 	cmd_msg->tx_len[1] = 3;
 
-	pr_info("%s+,hbm_tb = 0x%x, high_bl = 0x%x, low_bl = 0x%x \n", __func__, hbm_tb[1], bl_tb[1], bl_tb[2]);
+	pr_debug("%s+,hbm_tb = 0x%x, high_bl = 0x%x, low_bl = 0x%x \n", __func__, hbm_tb[1], bl_tb[1], bl_tb[2]);
 
 	ret = mtk_ddic_dsi_send_cmd(cmd_msg, true);
 	if (ret != 0) {
@@ -591,7 +591,7 @@ static int panel_hbm_control(struct drm_panel *panel, bool en)
 	}
 
 	vfree(cmd_msg);
-	pr_info("%s-\n", __func__);
+	pr_debug("%s-\n", __func__);
 
 	return 0;
 }
@@ -602,7 +602,7 @@ static int panel_aod_control(bool en)
 			vmalloc(sizeof(struct mtk_ddic_dsi_msg));
 	int ret;
 	char bl_tb[] = {0x51, 0x00, 0xff};
-	pr_info("%s+\n", __func__);
+	pr_debug("%s+\n", __func__);
 	if (unlikely(!cmd_msg)) {
 		pr_err("%s vmalloc mtk_ddic_dsi_msg is failed, return\n", __func__);
 		return 0;
@@ -623,13 +623,13 @@ static int panel_aod_control(bool en)
 	cmd_msg->type[0] = 0x39;
 	cmd_msg->tx_buf[0] = bl_tb;
 	cmd_msg->tx_len[0] = 3;
-	pr_info("%s+, reg = 0x%x, high_bl = 0x%x, low_bl = 0x%x\n", __func__, bl_tb[0], bl_tb[1], bl_tb[2]);
+	pr_debug("%s+, reg = 0x%x, high_bl = 0x%x, low_bl = 0x%x\n", __func__, bl_tb[0], bl_tb[1], bl_tb[2]);
 	ret = mtk_ddic_dsi_send_cmd(cmd_msg, true);
 	if (ret != 0) {
 		pr_err("%s mtk_ddic_dsi_send_cmd error\n", __func__);
 	}
 	vfree(cmd_msg);
-	pr_info("%s-\n", __func__);
+	pr_debug("%s-\n", __func__);
 	return 0;
 }
 
@@ -663,13 +663,13 @@ static int panel_srgb_control(struct drm_panel *panel)
 	cmd_msg->type[3] = 0x39;
 	cmd_msg->tx_buf[3] = leavel2_key_off;
 	cmd_msg->tx_len[3] = 3;
-	//pr_info("%s+,hbm_tb = 0x%x, high_bl = 0x%x, low_bl = 0x%x \n", __func__, hbm_tb[1], bl_tb[1], bl_tb[2]);
+	//pr_debug("%s+,hbm_tb = 0x%x, high_bl = 0x%x, low_bl = 0x%x \n", __func__, hbm_tb[1], bl_tb[1], bl_tb[2]);
 	ret = mtk_ddic_dsi_send_cmd(cmd_msg, true);
 	if (ret != 0) {
 		pr_err("%s mtk_ddic_dsi_send_cmd error\n", __func__);
 	}
 	vfree(cmd_msg);
-	pr_info("%s-\n", __func__);
+	pr_debug("%s-\n", __func__);
 	return 0;
 }
 static int panel_p3_control(struct drm_panel *panel)
@@ -702,13 +702,13 @@ static int panel_p3_control(struct drm_panel *panel)
 	cmd_msg->type[3] = 0x39;
 	cmd_msg->tx_buf[3] = leavel2_key_off;
 	cmd_msg->tx_len[3] = 3;
-	//pr_info("%s+,hbm_tb = 0x%x, high_bl = 0x%x, low_bl = 0x%x \n", __func__, hbm_tb[1], bl_tb[1], bl_tb[2]);
+	//pr_debug("%s+,hbm_tb = 0x%x, high_bl = 0x%x, low_bl = 0x%x \n", __func__, hbm_tb[1], bl_tb[1], bl_tb[2]);
 	ret = mtk_ddic_dsi_send_cmd(cmd_msg, true);
 	if (ret != 0) {
 		pr_err("%s mtk_ddic_dsi_send_cmd error\n", __func__);
 	}
 	vfree(cmd_msg);
-	pr_info("%s-\n", __func__);
+	pr_debug("%s-\n", __func__);
 	return 0;
 }
 static int panel_crc_off_control(struct drm_panel *panel)
@@ -741,13 +741,13 @@ static int panel_crc_off_control(struct drm_panel *panel)
 	cmd_msg->type[3] = 0x39;
 	cmd_msg->tx_buf[3] = leavel2_key_off;
 	cmd_msg->tx_len[3] = 3;
-	//pr_info("%s+,hbm_tb = 0x%x, high_bl = 0x%x, low_bl = 0x%x \n", __func__, hbm_tb[1], bl_tb[1], bl_tb[2]);
+	//pr_debug("%s+,hbm_tb = 0x%x, high_bl = 0x%x, low_bl = 0x%x \n", __func__, hbm_tb[1], bl_tb[1], bl_tb[2]);
 	ret = mtk_ddic_dsi_send_cmd(cmd_msg, true);
 	if (ret != 0) {
 		pr_err("%s mtk_ddic_dsi_send_cmd error\n", __func__);
 	}
 	vfree(cmd_msg);
-	pr_info("%s-\n", __func__);
+	pr_debug("%s-\n", __func__);
 	return 0;
 }
 
@@ -797,7 +797,7 @@ static int lcm_setbacklight_control(struct drm_panel *panel, unsigned int level)
 		pr_err("%s mtk_ddic_dsi_send_cmd error\n", __func__);
 	}
 
-	pr_info("%s level = %d, high_bl = 0x%x, low_bl = 0x%x \n", __func__, level, bl_tb[1], bl_tb[2]);
+	pr_debug("%s level = %d, high_bl = 0x%x, low_bl = 0x%x \n", __func__, level, bl_tb[1], bl_tb[2]);
 
 	return ret;
 }
@@ -819,7 +819,7 @@ static int lcm_setbacklight_cmdq(void *dsi, dcs_write_gce cb,
 	if (level == 0) {
 		mdelay(50);
 	}
-	pr_info("%s: K7Sr for backlight level = %d,1=%x,2=%x,3=%x\n", __func__, level,bl_tb0[0],bl_tb0[1],bl_tb0[2]);
+	pr_debug("%s: K7Sr for backlight level = %d,1=%x,2=%x,3=%x\n", __func__, level,bl_tb0[0],bl_tb0[1],bl_tb0[2]);
 	cb(dsi, handle, bl_tb0, ARRAY_SIZE(bl_tb0));
 
 	return 0;
@@ -830,7 +830,7 @@ static struct drm_display_mode *get_mode_by_id(struct drm_panel *panel,
 {
 	struct drm_display_mode *m;
 	unsigned int i = 0;
-	pr_info("%s: K7SR for get_mode_by_id mode==%d\n", __func__,mode);
+	pr_debug("%s: K7SR for get_mode_by_id mode==%d\n", __func__,mode);
 
 	list_for_each_entry(m, &panel->connector->modes, head) {
 		if (i == mode)
@@ -844,7 +844,7 @@ static int mtk_panel_ext_param_set(struct drm_panel *panel, unsigned int mode)
 	struct mtk_panel_ext *ext = find_panel_ext(panel);
 	int ret = 0;
 	//struct drm_display_mode *m = get_mode_by_id(panel, mode);
-	pr_info("%s: K7SR for mtk_panel_ext_param_set\n", __func__);
+	pr_debug("%s: K7SR for mtk_panel_ext_param_set\n", __func__);
 
 	if (mode == 0)
 		ext->params = &ext_params;
@@ -860,7 +860,7 @@ static void mode_switch_60_to_90(struct drm_panel *panel,
 	enum MTK_PANEL_MODE_SWITCH_STAGE stage)
 {
 	struct lcm *ctx = panel_to_lcm(panel);
-	pr_info("%s: K7SR for mode_switch_60_to_90\n", __func__);
+	pr_debug("%s: K7SR for mode_switch_60_to_90\n", __func__);
 
 	lcm_dcs_write_seq_static(ctx, 0xF1, 0x5A, 0x5A, 0x5A, 0x5A);
  	lcm_dcs_write_seq_static(ctx, 0x60, 0x01);
@@ -872,7 +872,7 @@ static void mode_switch_90_to_60(struct drm_panel *panel,
 	enum MTK_PANEL_MODE_SWITCH_STAGE stage)
 {
 	struct lcm *ctx = panel_to_lcm(panel);
-	pr_info("%s: K7SR for mode_switch_90_to_60\n", __func__);
+	pr_debug("%s: K7SR for mode_switch_90_to_60\n", __func__);
 
 	lcm_dcs_write_seq_static(ctx, 0xF1, 0x5A, 0x5A, 0x5A, 0x5A);
  	lcm_dcs_write_seq_static(ctx, 0x60, 0x21);
@@ -883,7 +883,7 @@ static int mode_switch(struct drm_panel *panel, unsigned int cur_mode,
 		unsigned int dst_mode, enum MTK_PANEL_MODE_SWITCH_STAGE stage)
 {
 	int ret = 0;
-	pr_info("%s: K7SR for mode_switch\n", __func__);
+	pr_debug("%s: K7SR for mode_switch\n", __func__);
 	struct drm_display_mode *m = get_mode_by_id(panel, dst_mode);
 
 	if (m->vrefresh == 90) { /* 60 switch to 120 */
@@ -914,9 +914,9 @@ static void lcm_esd_restore_backlight(struct drm_panel *panel)
 
 	//lcm_dcs_write(ctx, bl_level, ARRAY_SIZE(bl_level));
 
-	//pr_info("%s high_bl = 0x%x, low_bl = 0x%x \n", __func__, bl_level[1], bl_level[2]);
+	//pr_debug("%s high_bl = 0x%x, low_bl = 0x%x \n", __func__, bl_level[1], bl_level[2]);
         lcm_dcs_write_seq_static(ctx, 0x51, 0x03, 0xFF);
- 	 pr_info(" add:lcm_esd_restore_backlight \n");
+ 	 pr_debug(" add:lcm_esd_restore_backlight \n");
 
 	return;
 }
@@ -970,7 +970,7 @@ struct panel_desc {
 
 static void change_drm_disp_mode_params(struct drm_display_mode *mode)
 {
-	pr_info("%s: K7SR for change_drm_disp_mode_params\n", __func__);
+	pr_debug("%s: K7SR for change_drm_disp_mode_params\n", __func__);
 
 	if (fake_heigh > 0 && fake_heigh < MODE0_VACT) {
 		mode->vsync_start = mode->vsync_start - mode->vdisplay
@@ -991,11 +991,11 @@ static void change_drm_disp_mode_params(struct drm_display_mode *mode)
 
 static int lcm_get_modes(struct drm_panel *panel)
 {
-	pr_info("%s: K7SR for lcm_get_modes\n", __func__);
+	pr_debug("%s: K7SR for lcm_get_modes\n", __func__);
 
 	struct drm_display_mode *mode;
 	struct drm_display_mode *mode2;
-	pr_info("%s+ K7SR for\n", __func__);
+	pr_debug("%s+ K7SR for\n", __func__);
 
 	mode = drm_mode_duplicate(panel->drm, &default_mode);
 	if (!mode) {
@@ -1054,13 +1054,13 @@ static int msm_lcd_name_create_sysfs(void){
    int ret;
    msm_lcd_name=kobject_create_and_add("android_lcd",NULL);
    if(msm_lcd_name==NULL){
-	pr_info("msm_lcd_name_create_sysfs_ failed\n");
+	pr_debug("msm_lcd_name_create_sysfs_ failed\n");
 	ret=-ENOMEM;
 	return ret;
    }
    ret=sysfs_create_file(msm_lcd_name,&dev_attr_lcd_name.attr);
    if(ret){
-	pr_info("%s failed \n",__func__);
+	pr_debug("%s failed \n",__func__);
 	kobject_del(msm_lcd_name);
    }
    return 0;
@@ -1079,19 +1079,19 @@ static int lcm_probe(struct mipi_dsi_device *dsi)
  		if (endpoint) {
  			remote_node = of_graph_get_remote_port_parent(endpoint);
 			if (!remote_node) {
- 				pr_info("No panel connected,skip probe lcm\n");
+ 				pr_debug("No panel connected,skip probe lcm\n");
  				return -ENODEV;
  			}
- 			pr_info("device node name:%s\n", remote_node->name);
+ 			pr_debug("device node name:%s\n", remote_node->name);
  		}
  	}
  	if (remote_node != dev->of_node) {
- 		pr_info("%s+ skip probe due to not current lcm\n", __func__);
+ 		pr_debug("%s+ skip probe due to not current lcm\n", __func__);
  		return -ENODEV;
  	}
 
 
-	pr_info("%s+\n", __func__);
+	pr_debug("%s+\n", __func__);
 	ctx = devm_kzalloc(dev, sizeof(struct lcm), GFP_KERNEL);
 	if (!ctx)
 		return -ENOMEM;
@@ -1165,7 +1165,7 @@ static int lcm_probe(struct mipi_dsi_device *dsi)
 		return ret;
 #endif
 
-	pr_info("%s: panel_k7_38_0c_0a_fhdp_video-\n", __func__);
+	pr_debug("%s: panel_k7_38_0c_0a_fhdp_video-\n", __func__);
 
 	return ret;
 }
