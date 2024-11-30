@@ -65,6 +65,7 @@ struct aw8622_haptic {
 	unsigned int duration;
 	unsigned int interval;
 	unsigned int center_freq;
+        unsigned int strength;
 
 	struct workqueue_struct *aw8622_wq;
 	struct work_struct play_work;
